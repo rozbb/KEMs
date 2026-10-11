@@ -906,7 +906,7 @@ open NttInternal
     hybrid_array.Array_NttPolynomial_BaseField_U2_Deref.deref_NttPolynomial_BaseField_U2NttPolynomial_BaseFieldU2,
     core.slice.SliceNttPolynomial_BaseField.lenNttPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 2#usize) algebra.Polynomial_BaseField_Ntt.ntt
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 2#usize) algebra.Polynomial_BaseField_Ntt.ntt
     (fun a r => r.toTq = Polynomial.NTT a.toPoly) (fun a ha => ntt_spec a ha)
     algebra.Vector_BaseField_U2_Ntt.ntt_U2U2_loop
     (fun _ _ _ => by rw [algebra.Vector_BaseField_U2_Ntt.ntt_U2U2_loop]; rfl)
@@ -928,7 +928,7 @@ open NttInternal
     hybrid_array.Array_Polynomial_BaseField_U2_Deref.deref_Polynomial_BaseField_U2Polynomial_BaseFieldU2,
     core.slice.SlicePolynomial_BaseField.lenPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 2#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 2#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
     (fun a r => r.toPoly = Tq.NTTInv a.toTq) (fun a ha => ntt_inverse_spec a ha)
     algebra.NttVector_BaseField_U2_NttInverse.ntt_inverse_U2U2_loop
     (fun _ _ _ => by rw [algebra.NttVector_BaseField_U2_NttInverse.ntt_inverse_U2U2_loop]; rfl)
@@ -950,7 +950,7 @@ open NttInternal
     hybrid_array.Array_NttPolynomial_BaseField_U3_Deref.deref_NttPolynomial_BaseField_U3NttPolynomial_BaseFieldU3,
     core.slice.SliceNttPolynomial_BaseField.lenNttPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 3#usize) algebra.Polynomial_BaseField_Ntt.ntt
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 3#usize) algebra.Polynomial_BaseField_Ntt.ntt
     (fun a r => r.toTq = Polynomial.NTT a.toPoly) (fun a ha => ntt_spec a ha)
     algebra.Vector_BaseField_U3_Ntt.ntt_U3U3_loop
     (fun _ _ _ => by rw [algebra.Vector_BaseField_U3_Ntt.ntt_U3U3_loop]; rfl)
@@ -972,7 +972,7 @@ open NttInternal
     hybrid_array.Array_Polynomial_BaseField_U3_Deref.deref_Polynomial_BaseField_U3Polynomial_BaseFieldU3,
     core.slice.SlicePolynomial_BaseField.lenPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 3#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 3#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
     (fun a r => r.toPoly = Tq.NTTInv a.toTq) (fun a ha => ntt_inverse_spec a ha)
     algebra.NttVector_BaseField_U3_NttInverse.ntt_inverse_U3U3_loop
     (fun _ _ _ => by rw [algebra.NttVector_BaseField_U3_NttInverse.ntt_inverse_U3U3_loop]; rfl)
@@ -994,7 +994,7 @@ open NttInternal
     hybrid_array.Array_NttPolynomial_BaseField_U4_Deref.deref_NttPolynomial_BaseField_U4NttPolynomial_BaseFieldU4,
     core.slice.SliceNttPolynomial_BaseField.lenNttPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 4#usize) algebra.Polynomial_BaseField_Ntt.ntt
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 4#usize) algebra.Polynomial_BaseField_Ntt.ntt
     (fun a r => r.toTq = Polynomial.NTT a.toPoly) (fun a ha => ntt_spec a ha)
     algebra.Vector_BaseField_U4_Ntt.ntt_U4U4_loop
     (fun _ _ _ => by rw [algebra.Vector_BaseField_U4_Ntt.ntt_U4U4_loop]; rfl)
@@ -1016,7 +1016,7 @@ open NttInternal
     hybrid_array.Array_Polynomial_BaseField_U4_Deref.deref_Polynomial_BaseField_U4Polynomial_BaseFieldU4,
     core.slice.SlicePolynomial_BaseField.lenPolynomial_BaseField,
     core.ops.range.RangeUsize.Insts.CoreIterTraitsCollectIntoIterator.into_iter, bind_ok]
-  let* ⟨ r, hr ⟩ ← map_loop_spec (N := 4#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
+  let* ⟨ r, hr ⟩ ← NttInternal.map_loop_spec (N := 4#usize) algebra.NttPolynomial_BaseField_NttInverse.ntt_inverse
     (fun a r => r.toPoly = Tq.NTTInv a.toTq) (fun a ha => ntt_inverse_spec a ha)
     algebra.NttVector_BaseField_U4_NttInverse.ntt_inverse_U4U4_loop
     (fun _ _ _ => by rw [algebra.NttVector_BaseField_U4_NttInverse.ntt_inverse_U4U4_loop]; rfl)
