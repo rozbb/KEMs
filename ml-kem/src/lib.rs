@@ -388,3 +388,66 @@ mod test {
         key_inequality_test::<MlKem1024>();
     }
 }
+
+/// Monomorphic entry points for formal verification. Aeneas extracts these, and everything they
+/// call, for each parameter set (see `extract_rust_to_lean.sh`).
+#[cfg(aeneas)]
+#[allow(missing_docs, unreachable_pub, clippy::missing_errors_doc)]
+pub mod aeneas_entry {
+    use crate::{
+        B32, Ciphertext, Decapsulate, DecapsulationKey, EncapsulationKey, InvalidKey, Key,
+        KeyExport, MlKem512, MlKem768, MlKem1024, Seed, SharedKey,
+    };
+
+    macro_rules! entry_points {
+        ($module:ident, $params:ty) => {
+            pub mod $module {
+                use super::*;
+
+                pub fn from_seed(seed: Seed) -> DecapsulationKey<$params> {
+                    DecapsulationKey::from_seed(seed)
+                }
+
+                pub fn to_seed(dk: &DecapsulationKey<$params>) -> Option<Seed> {
+                    dk.to_seed()
+                }
+
+                pub fn encapsulation_key(
+                    dk: &DecapsulationKey<$params>,
+                ) -> &EncapsulationKey<$params> {
+                    dk.encapsulation_key()
+                }
+
+                pub fn decapsulate(
+                    dk: &DecapsulationKey<$params>,
+                    ct: &Ciphertext<$params>,
+                ) -> SharedKey {
+                    dk.decapsulate(ct)
+                }
+
+                pub fn ek_from_bytes(
+                    bytes: &Key<EncapsulationKey<$params>>,
+                ) -> Result<EncapsulationKey<$params>, InvalidKey> {
+                    EncapsulationKey::new(bytes)
+                }
+
+                pub fn ek_to_bytes(
+                    ek: &EncapsulationKey<$params>,
+                ) -> Key<EncapsulationKey<$params>> {
+                    ek.to_bytes()
+                }
+
+                pub fn encapsulate_deterministic(
+                    ek: &EncapsulationKey<$params>,
+                    m: &B32,
+                ) -> (Ciphertext<$params>, SharedKey) {
+                    ek.encapsulate_deterministic(m)
+                }
+            }
+        };
+    }
+
+    entry_points!(ml_kem_512, MlKem512);
+    entry_points!(ml_kem_768, MlKem768);
+    entry_points!(ml_kem_1024, MlKem1024);
+}

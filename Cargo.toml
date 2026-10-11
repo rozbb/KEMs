@@ -53,6 +53,7 @@ unreachable_pub = "warn"
 unsafe_code = "deny"
 unused_lifetimes = "warn"
 unused_qualifications = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(aeneas)'] }
 
 [profile.bench]
 debug = true
