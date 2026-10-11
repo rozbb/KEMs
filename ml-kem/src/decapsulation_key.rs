@@ -171,8 +171,8 @@ where
 {
     fn decapsulate(&self, encapsulated_key: &Ciphertext<P>) -> SharedKey {
         let mp = self.dk_pke.decrypt(encapsulated_key);
-        let (Kp, rp) = G(&[&mp, &self.ek.h()]);
-        let Kbar = J(&[self.z.as_slice(), encapsulated_key.as_ref()]);
+        let (Kp, rp) = G(&mp, &self.ek.h());
+        let Kbar = J(self.z.as_slice(), encapsulated_key.as_ref());
         let cp = self.ek.ek_pke().encrypt(&mp, &rp);
         Kbar.ct_select(&Kp, cp.ct_eq(encapsulated_key))
     }

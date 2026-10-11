@@ -43,7 +43,7 @@ where
     #[cfg_attr(not(feature = "hazmat"), doc(hidden))]
     #[must_use]
     pub fn encapsulate_deterministic(&self, m: &B32) -> (Ciphertext<P>, SharedKey) {
-        let (K, r) = G(&[m, &self.h]);
+        let (K, r) = G(m, &self.h);
         let c = self.ek_pke.encrypt(m, &r);
         (c, K)
     }

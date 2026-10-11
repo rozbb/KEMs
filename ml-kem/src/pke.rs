@@ -65,7 +65,7 @@ where
     pub(crate) fn generate(d: &B32) -> (Self, EncryptionKey<P>) {
         // Generate random seeds
         let k = P::K::U8;
-        let (rho, sigma) = G(&[&d[..], &[k]]);
+        let (rho, sigma) = G(&d[..], &[k]);
 
         // Sample pseudo-random matrix and vectors
         let A_hat: NttMatrix<P::K> = matrix_sample_ntt(&rho, false);

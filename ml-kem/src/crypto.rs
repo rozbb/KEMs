@@ -5,11 +5,10 @@ use module_lattice::EncodedPolynomial;
 use sha3::{Digest, Sha3_256, Sha3_512};
 use shake::{ExtendableOutput, Shake128, Shake256, Update, XofReader};
 
-pub(crate) fn G(inputs: &[impl AsRef<[u8]>]) -> (B32, B32) {
+pub(crate) fn G(x: &[u8], y: &[u8]) -> (B32, B32) {
     let mut h = Sha3_512::new();
-    for x in inputs {
-        Digest::update(&mut h, x);
-    }
+    Digest::update(&mut h, x);
+    Digest::update(&mut h, y);
     let out = h.finalize();
 
     let mut a = B32::default();
@@ -32,11 +31,10 @@ pub(crate) fn H(x: impl AsRef<[u8]>) -> B32 {
     out
 }
 
-pub(crate) fn J(inputs: &[impl AsRef<[u8]>]) -> B32 {
+pub(crate) fn J(x: &[u8], y: &[u8]) -> B32 {
     let mut h = Shake256::default();
-    for x in inputs {
-        h.update(x.as_ref());
-    }
+    h.update(x);
+    h.update(y);
     let mut r = h.finalize_xof();
 
     let mut out = B32::default();
@@ -132,7 +130,7 @@ mod test {
     fn g() {
         let msg1 = "Input to ".as_bytes();
         let msg2 = "an invocation of G".as_bytes();
-        let (actualA, actualB) = G(&[msg1, msg2]);
+        let (actualA, actualB) = G(msg1, msg2);
         let expectedA = hex!("07dfced2a3a3feb3277cee1709818828ea6d2f42800152e9c312e848122231c2");
         let expectedB = hex!("272969098a1bbd5a0a9844e2f89f206d8f7f4599e36aecaa4793af400fd880d8");
         assert_eq!(actualA, expectedA);
@@ -151,7 +149,7 @@ mod test {
     fn j() {
         let msg1 = "Input to ".as_bytes();
         let msg2 = "an invocation of J".as_bytes();
-        let actual = J(&[msg1, msg2]);
+        let actual = J(msg1, msg2);
         let expected = hex!("a5292293d70c8eca049cbb475c48fabd625ed2b20785a18248504d3741196b52");
         assert_eq!(actual, expected);
     }
