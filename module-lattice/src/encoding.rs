@@ -86,59 +86,62 @@ where
     }
 }
 
+/// Packs the `D::ValueStep` values starting at `start` into a little-endian integer.
+fn pack_chunk<F: Field, D: EncodingSize>(vals: &DecodedValue<F>, start: usize) -> u128 {
+    let mut x = 0u128;
+    for j in 0..D::ValueStep::USIZE {
+        let vj: u128 = vals[start + j].0.into();
+        x |= vj << (D::USIZE * j);
+    }
+    x
+}
+
+/// Reads the `D::ByteStep` bytes starting at `start` as a little-endian integer.
+fn unpack_chunk<D: EncodingSize>(bytes: &EncodedPolynomial<D>, start: usize) -> u128 {
+    let mut xb = [0u8; 16];
+    for k in 0..D::ByteStep::USIZE {
+        xb[k] = bytes[start + k];
+    }
+    u128::from_le_bytes(xb)
+}
+
 /// FIPS 203: Algorithm 4 `ByteEncode_d`.
 /// FIPS 204: Algorithm 16 `SimpleBitPack`.
+#[allow(clippy::integer_division_remainder_used, reason = "public values")]
 pub fn byte_encode<F: Field, D: EncodingSize>(vals: &DecodedValue<F>) -> EncodedPolynomial<D> {
     let val_step = D::ValueStep::USIZE;
     let byte_step = D::ByteStep::USIZE;
 
     let mut bytes = EncodedPolynomial::<D>::default();
-
-    let vc = vals.chunks(val_step);
-    let bc = bytes.chunks_mut(byte_step);
-    for (v, b) in vc.zip(bc) {
-        let mut x = 0u128;
-        for (j, vj) in v.iter().enumerate() {
-            let vj: u128 = vj.0.into();
-            x |= vj << (D::USIZE * j);
+    for c in 0..256 / val_step {
+        let xb = pack_chunk::<F, D>(vals, c * val_step).to_le_bytes();
+        for k in 0..byte_step {
+            bytes[c * byte_step + k] = xb[k];
         }
-
-        let xb = x.to_le_bytes();
-        b.copy_from_slice(&xb[..byte_step]);
     }
-
     bytes
 }
 
 /// FIPS 203: Algorithm 5 `ByteDecode_d(F)`
 /// FIPS 204: Algorithm 18 `SimpleBitUnpack`
+#[allow(clippy::integer_division_remainder_used, reason = "public values")]
 pub fn byte_decode<F: Field, D: EncodingSize>(bytes: &EncodedPolynomial<D>) -> DecodedValue<F> {
     let val_step = D::ValueStep::USIZE;
     let byte_step = D::ByteStep::USIZE;
     let mask = (F::Int::one() << D::USIZE) - F::Int::one();
 
     let mut vals = DecodedValue::default();
-
-    let vc = vals.chunks_mut(val_step);
-    let bc = bytes.chunks(byte_step);
-    for (v, b) in vc.zip(bc) {
-        let mut xb = [0u8; 16];
-        xb[..byte_step].copy_from_slice(b);
-
-        let x = u128::from_le_bytes(xb);
-        for (j, vj) in v.iter_mut().enumerate() {
+    for c in 0..256 / val_step {
+        let x = unpack_chunk::<D>(bytes, c * byte_step);
+        for j in 0..val_step {
             let val = F::Int::truncate(x >> (D::USIZE * j));
-            vj.0 = val & mask;
-
-            // Special case for FIPS 203. For 12-bit values (max 4095) with Q = 3329,
-            // the masked value is always in [0, 2Q), so `small_reduce` is exact and
-            // avoids the hardware UDIV that `% F::Q` would emit.
+            let mut v = val & mask;
             if D::USIZE == 12 {
-                vj.0 = F::small_reduce(vj.0);
+                v = F::small_reduce(v);
             }
+            vals[c * val_step + j].0 = v;
         }
     }
-
     vals
 }
 
@@ -173,18 +176,22 @@ where
     type EncodedSize = D::EncodedVectorSize;
 
     fn encode(&self) -> Array<u8, Self::EncodedSize> {
-        let polys = self.0.iter().map(|x| Encode::<D>::encode(x)).collect();
+        let mut polys = Array::<EncodedPolynomial<D>, K>::default();
+        for i in 0..polys.len() {
+            polys[i] = Encode::<D>::encode(&self.0[i]);
+        }
         <D as VectorEncodingSize<K>>::flatten(polys)
     }
 
     fn decode(enc: &Array<u8, Self::EncodedSize>) -> Self {
-        let unfold = <D as VectorEncodingSize<K>>::unflatten(enc);
-        Self(
-            unfold
-                .iter()
-                .map(|&x| <Polynomial<F> as Encode<D>>::decode(x))
-                .collect(),
-        )
+        let n = D::EncodedPolynomialSize::USIZE;
+        let mut out = Self(Array::default());
+        for i in 0..out.0.len() {
+            #[allow(deprecated, reason = "the `TryFrom` replacement is fallible")]
+            let x = EncodedPolynomial::<D>::from_slice(&enc[i * n..(i + 1) * n]);
+            out.0[i] = <Polynomial<F> as Encode<D>>::decode(x);
+        }
+        out
     }
 }
 
@@ -209,17 +216,21 @@ where
     type EncodedSize = D::EncodedVectorSize;
 
     fn encode(&self) -> Array<u8, Self::EncodedSize> {
-        let polys = self.0.iter().map(|x| Encode::<D>::encode(x)).collect();
+        let mut polys = Array::<EncodedPolynomial<D>, K>::default();
+        for i in 0..polys.len() {
+            polys[i] = Encode::<D>::encode(&self.0[i]);
+        }
         <D as VectorEncodingSize<K>>::flatten(polys)
     }
 
     fn decode(enc: &Array<u8, Self::EncodedSize>) -> Self {
-        let unfold = <D as VectorEncodingSize<K>>::unflatten(enc);
-        Self(
-            unfold
-                .iter()
-                .map(|&x| <NttPolynomial<F> as Encode<D>>::decode(x))
-                .collect(),
-        )
+        let n = D::EncodedPolynomialSize::USIZE;
+        let mut out = Self(Array::default());
+        for i in 0..out.0.len() {
+            #[allow(deprecated, reason = "the `TryFrom` replacement is fallible")]
+            let x = EncodedPolynomial::<D>::from_slice(&enc[i * n..(i + 1) * n]);
+            out.0[i] = <NttPolynomial<F> as Encode<D>>::decode(x);
+        }
+        out
     }
 }
