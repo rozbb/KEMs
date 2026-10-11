@@ -54,16 +54,16 @@ impl Compress for Elem {
 }
 impl Compress for Polynomial {
     fn compress<D: CompressionFactor>(&mut self) -> &Self {
-        for x in &mut self.0 {
-            x.compress::<D>();
+        for i in 0..self.0.len() {
+            self.0[i].compress::<D>();
         }
 
         self
     }
 
     fn decompress<D: CompressionFactor>(&mut self) -> &Self {
-        for x in &mut self.0 {
-            x.decompress::<D>();
+        for i in 0..self.0.len() {
+            self.0[i].decompress::<D>();
         }
 
         self
@@ -72,16 +72,16 @@ impl Compress for Polynomial {
 
 impl<K: ArraySize> Compress for Vector<K> {
     fn compress<D: CompressionFactor>(&mut self) -> &Self {
-        for x in &mut self.0 {
-            x.compress::<D>();
+        for i in 0..self.0.len() {
+            self.0[i].compress::<D>();
         }
 
         self
     }
 
     fn decompress<D: CompressionFactor>(&mut self) -> &Self {
-        for x in &mut self.0 {
-            x.decompress::<D>();
+        for i in 0..self.0.len() {
+            self.0[i].decompress::<D>();
         }
 
         self
