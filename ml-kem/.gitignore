@@ -1,0 +1,7 @@
+*.llbc
+
+# Prebuilt aeneas/charon, fetched by extract_rust_to_lean.sh.
+/.aeneas-bin/
+
+# Lean build artifacts
+/lean/.lake/
