@@ -32,63 +32,31 @@ pub(crate) type NttMatrix<K> = module_lattice::NttMatrix<BaseField, K, K>;
 
 /// Algorithm 7: `SampleNTT(B)`
 pub(crate) fn sample_ntt(B: &mut impl XofReader) -> NttPolynomial {
-    struct FieldElementReader<'a> {
-        xof: &'a mut dyn XofReader,
-        data: [u8; 96],
-        start: usize,
-        next: Option<Int>,
-    }
-
-    impl<'a> FieldElementReader<'a> {
-        fn new(xof: &'a mut impl XofReader) -> Self {
-            let mut out = Self {
-                xof,
-                data: [0u8; 96],
-                start: 0,
-                next: None,
-            };
-
-            // Fill the buffer
-            out.xof.read(&mut out.data);
-
-            out
+    let mut out = NttPolynomial::new(Array::default());
+    let mut data = [0u8; 96];
+    B.read(&mut data);
+    let mut start = 0;
+    let mut j = 0;
+    while j < 256 {
+        if start == data.len() {
+            B.read(&mut data);
+            start = 0;
         }
 
-        fn next(&mut self) -> Elem {
-            if let Some(val) = self.next {
-                self.next = None;
-                return Elem::new(val);
-            }
+        let d1 = Int::from(data[start]) + ((Int::from(data[start + 1]) & 0xf) << 8);
+        let d2 = (Int::from(data[start + 1]) >> 4) + (Int::from(data[start + 2]) << 4);
+        start += 3;
 
-            loop {
-                if self.start == self.data.len() {
-                    self.xof.read(&mut self.data);
-                    self.start = 0;
-                }
-
-                let end = self.start + 3;
-                let b = &self.data[self.start..end];
-                self.start = end;
-
-                let d1 = Int::from(b[0]) + ((Int::from(b[1]) & 0xf) << 8);
-                let d2 = (Int::from(b[1]) >> 4) + (Int::from(b[2]) << 4);
-
-                if d1 < BaseField::Q {
-                    if d2 < BaseField::Q {
-                        self.next = Some(d2);
-                    }
-                    return Elem::new(d1);
-                }
-
-                if d2 < BaseField::Q {
-                    return Elem::new(d2);
-                }
-            }
+        if d1 < BaseField::Q {
+            out.0[j] = Elem::new(d1);
+            j += 1;
+        }
+        if d2 < BaseField::Q && j < 256 {
+            out.0[j] = Elem::new(d2);
+            j += 1;
         }
     }
-
-    let mut reader = FieldElementReader::new(B);
-    NttPolynomial::new(Array::from_fn(|_| reader.next()))
+    out
 }
 
 pub(crate) fn matrix_sample_ntt<K: ArraySize>(rho: &B32, transpose: bool) -> NttMatrix<K> {
