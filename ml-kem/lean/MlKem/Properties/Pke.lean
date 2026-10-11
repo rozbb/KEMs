@@ -256,7 +256,7 @@ def ekPKE512 (ek : pke.EncryptionKey_MlKem512) : EkPKE .ML_KEM_512 :=
 /-- A Rust K-PKE decryption key, as the spec's. -/
 def dkPKE512 (dk : pke.DecryptionKey_MlKem512) : DkPKE .ML_KEM_512 := ⟨toNTTVec dk.s_hat⟩
 
-@[step] theorem generate_spec_512 (d : Std.Array U8 32#usize) :
+@[step] theorem generate_spec_512 (hT : SampleNTTHalts) (d : Std.Array U8 32#usize) :
     pke.DecryptionKey_MlKem512.generate_MlKem512MlKem512 d
       ⦃ (dk : pke.DecryptionKey_MlKem512) (ek : pke.EncryptionKey_MlKem512) =>
           Vec.Bounded q dk.s_hat ∧ Vec.Bounded q ek.t_hat ∧
@@ -280,7 +280,7 @@ def dkPKE512 (dk : pke.DecryptionKey_MlKem512) : DkPKE .ML_KEM_512 := ⟨toNTTVe
     simp only [Nat.zero_add]
     rfl
 
-@[step] theorem encrypt_spec_512 (ek : pke.EncryptionKey_MlKem512) (msg r : Std.Array U8 32#usize)
+@[step] theorem encrypt_spec_512 (hT : SampleNTTHalts) (ek : pke.EncryptionKey_MlKem512) (msg r : Std.Array U8 32#usize)
     (hek : Vec.Bounded q ek.t_hat) :
     pke.EncryptionKey_MlKem512.encrypt_MlKem512MlKem512 ek msg r
       ⦃ c => arrayToBytes c =
@@ -367,7 +367,7 @@ def ekPKE768 (ek : pke.EncryptionKey_MlKem768) : EkPKE .ML_KEM_768 :=
 /-- A Rust K-PKE decryption key, as the spec's. -/
 def dkPKE768 (dk : pke.DecryptionKey_MlKem768) : DkPKE .ML_KEM_768 := ⟨toNTTVec dk.s_hat⟩
 
-@[step] theorem generate_spec_768 (d : Std.Array U8 32#usize) :
+@[step] theorem generate_spec_768 (hT : SampleNTTHalts) (d : Std.Array U8 32#usize) :
     pke.DecryptionKey_MlKem768.generate_MlKem768MlKem768 d
       ⦃ (dk : pke.DecryptionKey_MlKem768) (ek : pke.EncryptionKey_MlKem768) =>
           Vec.Bounded q dk.s_hat ∧ Vec.Bounded q ek.t_hat ∧
@@ -391,7 +391,7 @@ def dkPKE768 (dk : pke.DecryptionKey_MlKem768) : DkPKE .ML_KEM_768 := ⟨toNTTVe
     simp only [Nat.zero_add]
     rfl
 
-@[step] theorem encrypt_spec_768 (ek : pke.EncryptionKey_MlKem768) (msg r : Std.Array U8 32#usize)
+@[step] theorem encrypt_spec_768 (hT : SampleNTTHalts) (ek : pke.EncryptionKey_MlKem768) (msg r : Std.Array U8 32#usize)
     (hek : Vec.Bounded q ek.t_hat) :
     pke.EncryptionKey_MlKem768.encrypt_MlKem768MlKem768 ek msg r
       ⦃ c => arrayToBytes c =
@@ -478,7 +478,7 @@ def ekPKE1024 (ek : pke.EncryptionKey_MlKem1024) : EkPKE .ML_KEM_1024 :=
 /-- A Rust K-PKE decryption key, as the spec's. -/
 def dkPKE1024 (dk : pke.DecryptionKey_MlKem1024) : DkPKE .ML_KEM_1024 := ⟨toNTTVec dk.s_hat⟩
 
-@[step] theorem generate_spec_1024 (d : Std.Array U8 32#usize) :
+@[step] theorem generate_spec_1024 (hT : SampleNTTHalts) (d : Std.Array U8 32#usize) :
     pke.DecryptionKey_MlKem1024.generate_MlKem1024MlKem1024 d
       ⦃ (dk : pke.DecryptionKey_MlKem1024) (ek : pke.EncryptionKey_MlKem1024) =>
           Vec.Bounded q dk.s_hat ∧ Vec.Bounded q ek.t_hat ∧
@@ -502,7 +502,7 @@ def dkPKE1024 (dk : pke.DecryptionKey_MlKem1024) : DkPKE .ML_KEM_1024 := ⟨toNT
     simp only [Nat.zero_add]
     rfl
 
-@[step] theorem encrypt_spec_1024 (ek : pke.EncryptionKey_MlKem1024) (msg r : Std.Array U8 32#usize)
+@[step] theorem encrypt_spec_1024 (hT : SampleNTTHalts) (ek : pke.EncryptionKey_MlKem1024) (msg r : Std.Array U8 32#usize)
     (hek : Vec.Bounded q ek.t_hat) :
     pke.EncryptionKey_MlKem1024.encrypt_MlKem1024MlKem1024 ek msg r
       ⦃ c => arrayToBytes c =

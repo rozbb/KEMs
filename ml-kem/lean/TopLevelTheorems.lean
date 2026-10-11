@@ -99,41 +99,45 @@ theorem ctSize (s : Size) : Wychelean.KEM.MLKEM.ctLen s.ps = s.ctLen.val := by c
 
 end Size
 
+/-- Rejection sampling (FIPS 203, Algorithm 7) halts on every input. The theorems that run it (all
+but `ek_from_bytes_then_to_bytes`) assume this; see `MlKem.Properties.SampleNTTHalts`. -/
+abbrev SampleNTTHalts : Prop := MlKem.Properties.SampleNTTHalts
+
 /-- keygen → encapsulation key → to_bytes matches the spec -/
-theorem keygen_then_to_bytes : ∀ (s : Size) (seed : Array U8 64#usize),
+theorem keygen_then_to_bytes (h : SampleNTTHalts) : ∀ (s : Size) (seed : Array U8 64#usize),
     (do let dk ← s.fromSeed seed
         let ek ← s.encapsulationKey dk
         s.ekToBytes ek)
       ⦃ (r : Array U8 s.ekLen) =>
           (arrayToBytes r).toList = (KeyGen s.ps (seedD seed) (seedZ seed)).1.toList ⦄
-  | .k512, seed => MlKem.Properties.keygen_to_bytes_512 seed
-  | .k768, seed => MlKem.Properties.keygen_to_bytes_768 seed
-  | .k1024, seed => MlKem.Properties.keygen_to_bytes_1024 seed
+  | .k512, seed => MlKem.Properties.keygen_to_bytes_512 h seed
+  | .k768, seed => MlKem.Properties.keygen_to_bytes_768 h seed
+  | .k1024, seed => MlKem.Properties.keygen_to_bytes_1024 h seed
 
 /-- keygen → encapsulation key → encapsulate matches the spec -/
-theorem keygen_then_encapsulate : ∀ (s : Size) (seed : Array U8 64#usize) (m : Array U8 32#usize),
+theorem keygen_then_encapsulate (h : SampleNTTHalts) : ∀ (s : Size) (seed : Array U8 64#usize) (m : Array U8 32#usize),
     (do let dk ← s.fromSeed seed
         let ek ← s.encapsulationKey dk
         s.encapsulate ek m)
       ⦃ (ct : Array U8 s.ctLen) (ss : Array U8 32#usize) =>
           Encaps s.ps (KeyGen s.ps (seedD seed) (seedZ seed)).1 (arrayToBytes m)
             = some (arrayToBytes ss, (arrayToBytes ct).cast s.ctSize.symm) ⦄
-  | .k512, seed, m => MlKem.Properties.keygen_encap_512 seed m
-  | .k768, seed, m => MlKem.Properties.keygen_encap_768 seed m
-  | .k1024, seed, m => MlKem.Properties.keygen_encap_1024 seed m
+  | .k512, seed, m => MlKem.Properties.keygen_encap_512 h seed m
+  | .k768, seed, m => MlKem.Properties.keygen_encap_768 h seed m
+  | .k1024, seed, m => MlKem.Properties.keygen_encap_1024 h seed m
 
 /-- from_bytes → encapsulate matches the spec. Unlike the others, deserialization can fail: the
 spec's `Encaps` checks its input key, and the Rust impl does the same check when deserializing it.
 The theorem says that these checks agree, and that when they pass, the outputs agree. -/
-theorem from_bytes_then_encapsulate : ∀ (s : Size) (ek_bytes : Array U8 s.ekLen)
+theorem from_bytes_then_encapsulate (h : SampleNTTHalts) : ∀ (s : Size) (ek_bytes : Array U8 s.ekLen)
     (m : Array U8 32#usize),
     (MlKem.Properties.whenOk (s.ekFromBytes ek_bytes) fun ek => s.encapsulate ek m)
       ⦃ (r : Option (Array U8 s.ctLen × Array U8 32#usize)) =>
           r.map (fun (ct, ss) => (arrayToBytes ss, (arrayToBytes ct).cast s.ctSize.symm))
             = Encaps s.ps ((arrayToBytes ek_bytes).cast s.ekSize.symm) (arrayToBytes m) ⦄
-  | .k512, ek, m => MlKem.Properties.from_bytes_encap_512 ek m
-  | .k768, ek, m => MlKem.Properties.from_bytes_encap_768 ek m
-  | .k1024, ek, m => MlKem.Properties.from_bytes_encap_1024 ek m
+  | .k512, ek, m => MlKem.Properties.from_bytes_encap_512 h ek m
+  | .k768, ek, m => MlKem.Properties.from_bytes_encap_768 h ek m
+  | .k1024, ek, m => MlKem.Properties.from_bytes_encap_1024 h ek m
 
 /-- ek from_bytes → to_bytes is the identity on bytes, whenever from_bytes succeeds. Note this doesn't
 make any reference to the spec, since the spec only ever represents keys as byte strings. Instead, we
@@ -147,23 +151,23 @@ theorem ek_from_bytes_then_to_bytes : ∀ (s : Size) (ek_bytes : Array U8 s.ekLe
 
 /-- dk from_seed → to_seed is the identity on bytes. Similar to above, this doesn't make any reference
 to the spec, which only ever represents the seed as bytes. -/
-theorem from_seed_then_to_seed : ∀ (s : Size) (seed : Array U8 64#usize),
+theorem from_seed_then_to_seed (h : SampleNTTHalts) : ∀ (s : Size) (seed : Array U8 64#usize),
     (do let dk ← s.fromSeed seed
         s.toSeed dk)
       ⦃ (r : Option (Array U8 64#usize)) => r = some seed ⦄
-  | .k512, seed => MlKem.Properties.from_seed_to_seed_512 seed
-  | .k768, seed => MlKem.Properties.from_seed_to_seed_768 seed
-  | .k1024, seed => MlKem.Properties.from_seed_to_seed_1024 seed
+  | .k512, seed => MlKem.Properties.from_seed_to_seed_512 h seed
+  | .k768, seed => MlKem.Properties.from_seed_to_seed_768 h seed
+  | .k1024, seed => MlKem.Properties.from_seed_to_seed_1024 h seed
 
 /-- keygen → decapsulate matches the spec -/
-theorem keygen_then_decapsulate : ∀ (s : Size) (seed : Array U8 64#usize) (ct : Array U8 s.ctLen),
+theorem keygen_then_decapsulate (h : SampleNTTHalts) : ∀ (s : Size) (seed : Array U8 64#usize) (ct : Array U8 s.ctLen),
     (do let dk ← s.fromSeed seed
         s.decapsulate dk ct)
       ⦃ (r : Array U8 32#usize) =>
           Decaps s.ps (KeyGen s.ps (seedD seed) (seedZ seed)).2 ((arrayToBytes ct).cast s.ctSize.symm)
             = some (arrayToBytes r) ⦄
-  | .k512, seed, ct => MlKem.Properties.keygen_decap_512 seed ct
-  | .k768, seed, ct => MlKem.Properties.keygen_decap_768 seed ct
-  | .k1024, seed, ct => MlKem.Properties.keygen_decap_1024 seed ct
+  | .k512, seed, ct => MlKem.Properties.keygen_decap_512 h seed ct
+  | .k768, seed, ct => MlKem.Properties.keygen_decap_768 h seed ct
+  | .k1024, seed, ct => MlKem.Properties.keygen_decap_1024 h seed ct
 
 end MlKem.TopLevel

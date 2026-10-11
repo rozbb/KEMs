@@ -169,7 +169,7 @@ def dk512 (dk : decapsulation_key.DecapsulationKey_MlKem512) : Dk .ML_KEM_512 :=
   ⟨dkPKE512 dk.dk_pke.inner, pack (ekPKE512 dk.ek.ek_pke.inner), H (pack (ekPKE512 dk.ek.ek_pke.inner)),
     arrayToBytes dk.z.inner⟩
 
-@[step] theorem from_seed_spec_512 (seed : Std.Array U8 64#usize) :
+@[step] theorem from_seed_spec_512 (hT : SampleNTTHalts) (seed : Std.Array U8 64#usize) :
     decapsulation_key.DecapsulationKey_MlKem512.from_seed_MlKem512MlKem512 seed
       ⦃ dk => dkInv512 dk ∧
           K_PKE.KeyGen .ML_KEM_512 (seedD seed) = (ekPKE512 dk.ek.ek_pke.inner, dkPKE512 dk.dk_pke.inner) ∧
@@ -195,7 +195,7 @@ def dk512 (dk : decapsulation_key.DecapsulationKey_MlKem512) : Dk .ML_KEM_512 :=
   have := h.1
   step*
 
-@[step] theorem encapsulate_spec_512 (ek : encapsulation_key.EncapsulationKey_MlKem512) (h : ekInv512 ek)
+@[step] theorem encapsulate_spec_512 (hT : SampleNTTHalts) (ek : encapsulation_key.EncapsulationKey_MlKem512) (h : ekInv512 ek)
     (m : Std.Array U8 32#usize) :
     encapsulation_key.EncapsulationKey_MlKem512.encapsulate_deterministic_MlKem512MlKem512 ek m
       ⦃ (c : Std.Array U8 768#usize) (K : Std.Array U8 32#usize) =>
@@ -214,7 +214,7 @@ def dk512 (dk : decapsulation_key.DecapsulationKey_MlKem512) : Dk .ML_KEM_512 :=
   rw [c_post]
   rfl
 
-@[step] theorem decapsulate_spec_512 (dk : decapsulation_key.DecapsulationKey_MlKem512) (h : dkInv512 dk)
+@[step] theorem decapsulate_spec_512 (hT : SampleNTTHalts) (dk : decapsulation_key.DecapsulationKey_MlKem512) (h : dkInv512 dk)
     (ct : Std.Array U8 768#usize) :
     decapsulation_key.DecapsulationKey_MlKem512_Decapsulate.decapsulate_MlKem512MlKem512 dk ct
       ⦃ K => Internal.Decaps .ML_KEM_512 (pack (dk512 dk)) (arrayToBytes ct) = arrayToBytes K ⦄ := by
@@ -277,7 +277,7 @@ def dk768 (dk : decapsulation_key.DecapsulationKey_MlKem768) : Dk .ML_KEM_768 :=
   ⟨dkPKE768 dk.dk_pke.inner, pack (ekPKE768 dk.ek.ek_pke.inner), H (pack (ekPKE768 dk.ek.ek_pke.inner)),
     arrayToBytes dk.z.inner⟩
 
-@[step] theorem from_seed_spec_768 (seed : Std.Array U8 64#usize) :
+@[step] theorem from_seed_spec_768 (hT : SampleNTTHalts) (seed : Std.Array U8 64#usize) :
     decapsulation_key.DecapsulationKey_MlKem768.from_seed_MlKem768MlKem768 seed
       ⦃ dk => dkInv768 dk ∧
           K_PKE.KeyGen .ML_KEM_768 (seedD seed) = (ekPKE768 dk.ek.ek_pke.inner, dkPKE768 dk.dk_pke.inner) ∧
@@ -303,7 +303,7 @@ def dk768 (dk : decapsulation_key.DecapsulationKey_MlKem768) : Dk .ML_KEM_768 :=
   have := h.1
   step*
 
-@[step] theorem encapsulate_spec_768 (ek : encapsulation_key.EncapsulationKey_MlKem768) (h : ekInv768 ek)
+@[step] theorem encapsulate_spec_768 (hT : SampleNTTHalts) (ek : encapsulation_key.EncapsulationKey_MlKem768) (h : ekInv768 ek)
     (m : Std.Array U8 32#usize) :
     encapsulation_key.EncapsulationKey_MlKem768.encapsulate_deterministic_MlKem768MlKem768 ek m
       ⦃ (c : Std.Array U8 1088#usize) (K : Std.Array U8 32#usize) =>
@@ -322,7 +322,7 @@ def dk768 (dk : decapsulation_key.DecapsulationKey_MlKem768) : Dk .ML_KEM_768 :=
   rw [c_post]
   rfl
 
-@[step] theorem decapsulate_spec_768 (dk : decapsulation_key.DecapsulationKey_MlKem768) (h : dkInv768 dk)
+@[step] theorem decapsulate_spec_768 (hT : SampleNTTHalts) (dk : decapsulation_key.DecapsulationKey_MlKem768) (h : dkInv768 dk)
     (ct : Std.Array U8 1088#usize) :
     decapsulation_key.DecapsulationKey_MlKem768_Decapsulate.decapsulate_MlKem768MlKem768 dk ct
       ⦃ K => Internal.Decaps .ML_KEM_768 (pack (dk768 dk)) (arrayToBytes ct) = arrayToBytes K ⦄ := by
@@ -385,7 +385,7 @@ def dk1024 (dk : decapsulation_key.DecapsulationKey_MlKem1024) : Dk .ML_KEM_1024
   ⟨dkPKE1024 dk.dk_pke.inner, pack (ekPKE1024 dk.ek.ek_pke.inner), H (pack (ekPKE1024 dk.ek.ek_pke.inner)),
     arrayToBytes dk.z.inner⟩
 
-@[step] theorem from_seed_spec_1024 (seed : Std.Array U8 64#usize) :
+@[step] theorem from_seed_spec_1024 (hT : SampleNTTHalts) (seed : Std.Array U8 64#usize) :
     decapsulation_key.DecapsulationKey_MlKem1024.from_seed_MlKem1024MlKem1024 seed
       ⦃ dk => dkInv1024 dk ∧
           K_PKE.KeyGen .ML_KEM_1024 (seedD seed) = (ekPKE1024 dk.ek.ek_pke.inner, dkPKE1024 dk.dk_pke.inner) ∧
@@ -411,7 +411,7 @@ def dk1024 (dk : decapsulation_key.DecapsulationKey_MlKem1024) : Dk .ML_KEM_1024
   have := h.1
   step*
 
-@[step] theorem encapsulate_spec_1024 (ek : encapsulation_key.EncapsulationKey_MlKem1024) (h : ekInv1024 ek)
+@[step] theorem encapsulate_spec_1024 (hT : SampleNTTHalts) (ek : encapsulation_key.EncapsulationKey_MlKem1024) (h : ekInv1024 ek)
     (m : Std.Array U8 32#usize) :
     encapsulation_key.EncapsulationKey_MlKem1024.encapsulate_deterministic_MlKem1024MlKem1024 ek m
       ⦃ (c : Std.Array U8 1568#usize) (K : Std.Array U8 32#usize) =>
@@ -430,7 +430,7 @@ def dk1024 (dk : decapsulation_key.DecapsulationKey_MlKem1024) : Dk .ML_KEM_1024
   rw [c_post]
   rfl
 
-@[step] theorem decapsulate_spec_1024 (dk : decapsulation_key.DecapsulationKey_MlKem1024) (h : dkInv1024 dk)
+@[step] theorem decapsulate_spec_1024 (hT : SampleNTTHalts) (dk : decapsulation_key.DecapsulationKey_MlKem1024) (h : dkInv1024 dk)
     (ct : Std.Array U8 1568#usize) :
     decapsulation_key.DecapsulationKey_MlKem1024_Decapsulate.decapsulate_MlKem1024MlKem1024 dk ct
       ⦃ K => Internal.Decaps .ML_KEM_1024 (pack (dk1024 dk)) (arrayToBytes ct) = arrayToBytes K ⦄ := by

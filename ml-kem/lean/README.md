@@ -30,6 +30,7 @@ Some details are outside our formalization:
 1. `sha3`, `shake`, `hybrid-array`, `typenum`, `ctutils`, and `core` are dependencies, and thus are not extracted. We model their behavior in `ExtractedRust/{Types,Funs}External.lean`, the hash functions using the SHA-3 functions of the spec. These models are trusted, see `TrustBase.lean`
 2. We cannot prove in Lean that anything operates in constant-time
 3. Deserialization of expanded decapsulation keys (`from_expanded`) is not covered
+4. The theorems that sample a matrix assume `SampleNTTHalts`: rejection sampling (Algorithm 7) halts on every input, i.e. SHAKE128's output always contains enough values `< q`. This is overwhelmingly likely, but unprovable in practice. Where it fails, the Rust loops forever
 
 # File layout
 

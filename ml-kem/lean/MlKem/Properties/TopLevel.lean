@@ -20,7 +20,7 @@ theorem spec_some_map {α : Type} {x : Result α} {P : Option α → Prop} (h : 
 
 section ML_KEM_512
 
-theorem keygen_to_bytes_512 (seed : Array U8 64#usize) :
+theorem keygen_to_bytes_512 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_512.from_seed seed
         let ek ← aeneas_entry.ml_kem_512.encapsulation_key dk
         aeneas_entry.ml_kem_512.ek_to_bytes ek)
@@ -33,7 +33,7 @@ theorem keygen_to_bytes_512 (seed : Array U8 64#usize) :
   rw [KeyGen_of _ _ _ _ _ dk_post1]
   exact congrArg Vector.toList r_post
 
-theorem keygen_encap_512 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
+theorem keygen_encap_512 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (m : Array U8 32#usize) :
     (do let dk ← aeneas_entry.ml_kem_512.from_seed seed
         let ek ← aeneas_entry.ml_kem_512.encapsulation_key dk
         aeneas_entry.ml_kem_512.encapsulate_deterministic ek m)
@@ -49,7 +49,7 @@ theorem keygen_encap_512 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
   rw [Encaps_of_KeyCheck _ _ _ (KeyCheck_pack _ _), ct_post]
   rfl
 
-theorem from_bytes_encap_512 (ek_bytes : Array U8 800#usize) (m : Array U8 32#usize) :
+theorem from_bytes_encap_512 (hT : SampleNTTHalts) (ek_bytes : Array U8 800#usize) (m : Array U8 32#usize) :
     (whenOk (aeneas_entry.ml_kem_512.ek_from_bytes ek_bytes) fun ek => aeneas_entry.ml_kem_512.encapsulate_deterministic ek m)
       ⦃ (r : Option (Array U8 768#usize × Array U8 32#usize)) =>
           r.map (fun (ct, ss) => (arrayToBytes ss, (arrayToBytes ct).cast rfl))
@@ -84,7 +84,7 @@ theorem from_bytes_to_bytes_512 (ek_bytes : Array U8 800#usize) :
     rw [r_post, hek]
     exact pack_unpack_of_KeyCheck _ _ hkc
 
-theorem from_seed_to_seed_512 (seed : Array U8 64#usize) :
+theorem from_seed_to_seed_512 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_512.from_seed seed
         aeneas_entry.ml_kem_512.to_seed dk)
       ⦃ (r : Option (Array U8 64#usize)) => r = some seed ⦄ := by
@@ -98,7 +98,7 @@ theorem from_seed_to_seed_512 (seed : Array U8 64#usize) :
   rw [auu2_post, dk_post4]
   exact congrArg some (concat_split seed _)
 
-theorem keygen_decap_512 (seed : Array U8 64#usize) (ct : Array U8 768#usize) :
+theorem keygen_decap_512 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (ct : Array U8 768#usize) :
     (do let dk ← aeneas_entry.ml_kem_512.from_seed seed
         aeneas_entry.ml_kem_512.decapsulate dk ct)
       ⦃ (r : Array U8 32#usize) =>
@@ -115,7 +115,7 @@ end ML_KEM_512
 
 section ML_KEM_768
 
-theorem keygen_to_bytes_768 (seed : Array U8 64#usize) :
+theorem keygen_to_bytes_768 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_768.from_seed seed
         let ek ← aeneas_entry.ml_kem_768.encapsulation_key dk
         aeneas_entry.ml_kem_768.ek_to_bytes ek)
@@ -128,7 +128,7 @@ theorem keygen_to_bytes_768 (seed : Array U8 64#usize) :
   rw [KeyGen_of _ _ _ _ _ dk_post1]
   exact congrArg Vector.toList r_post
 
-theorem keygen_encap_768 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
+theorem keygen_encap_768 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (m : Array U8 32#usize) :
     (do let dk ← aeneas_entry.ml_kem_768.from_seed seed
         let ek ← aeneas_entry.ml_kem_768.encapsulation_key dk
         aeneas_entry.ml_kem_768.encapsulate_deterministic ek m)
@@ -144,7 +144,7 @@ theorem keygen_encap_768 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
   rw [Encaps_of_KeyCheck _ _ _ (KeyCheck_pack _ _), ct_post]
   rfl
 
-theorem from_bytes_encap_768 (ek_bytes : Array U8 1184#usize) (m : Array U8 32#usize) :
+theorem from_bytes_encap_768 (hT : SampleNTTHalts) (ek_bytes : Array U8 1184#usize) (m : Array U8 32#usize) :
     (whenOk (aeneas_entry.ml_kem_768.ek_from_bytes ek_bytes) fun ek => aeneas_entry.ml_kem_768.encapsulate_deterministic ek m)
       ⦃ (r : Option (Array U8 1088#usize × Array U8 32#usize)) =>
           r.map (fun (ct, ss) => (arrayToBytes ss, (arrayToBytes ct).cast rfl))
@@ -179,7 +179,7 @@ theorem from_bytes_to_bytes_768 (ek_bytes : Array U8 1184#usize) :
     rw [r_post, hek]
     exact pack_unpack_of_KeyCheck _ _ hkc
 
-theorem from_seed_to_seed_768 (seed : Array U8 64#usize) :
+theorem from_seed_to_seed_768 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_768.from_seed seed
         aeneas_entry.ml_kem_768.to_seed dk)
       ⦃ (r : Option (Array U8 64#usize)) => r = some seed ⦄ := by
@@ -193,7 +193,7 @@ theorem from_seed_to_seed_768 (seed : Array U8 64#usize) :
   rw [auu2_post, dk_post4]
   exact congrArg some (concat_split seed _)
 
-theorem keygen_decap_768 (seed : Array U8 64#usize) (ct : Array U8 1088#usize) :
+theorem keygen_decap_768 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (ct : Array U8 1088#usize) :
     (do let dk ← aeneas_entry.ml_kem_768.from_seed seed
         aeneas_entry.ml_kem_768.decapsulate dk ct)
       ⦃ (r : Array U8 32#usize) =>
@@ -210,7 +210,7 @@ end ML_KEM_768
 
 section ML_KEM_1024
 
-theorem keygen_to_bytes_1024 (seed : Array U8 64#usize) :
+theorem keygen_to_bytes_1024 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_1024.from_seed seed
         let ek ← aeneas_entry.ml_kem_1024.encapsulation_key dk
         aeneas_entry.ml_kem_1024.ek_to_bytes ek)
@@ -223,7 +223,7 @@ theorem keygen_to_bytes_1024 (seed : Array U8 64#usize) :
   rw [KeyGen_of _ _ _ _ _ dk_post1]
   exact congrArg Vector.toList r_post
 
-theorem keygen_encap_1024 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
+theorem keygen_encap_1024 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (m : Array U8 32#usize) :
     (do let dk ← aeneas_entry.ml_kem_1024.from_seed seed
         let ek ← aeneas_entry.ml_kem_1024.encapsulation_key dk
         aeneas_entry.ml_kem_1024.encapsulate_deterministic ek m)
@@ -239,7 +239,7 @@ theorem keygen_encap_1024 (seed : Array U8 64#usize) (m : Array U8 32#usize) :
   rw [Encaps_of_KeyCheck _ _ _ (KeyCheck_pack _ _), ct_post]
   rfl
 
-theorem from_bytes_encap_1024 (ek_bytes : Array U8 1568#usize) (m : Array U8 32#usize) :
+theorem from_bytes_encap_1024 (hT : SampleNTTHalts) (ek_bytes : Array U8 1568#usize) (m : Array U8 32#usize) :
     (whenOk (aeneas_entry.ml_kem_1024.ek_from_bytes ek_bytes) fun ek => aeneas_entry.ml_kem_1024.encapsulate_deterministic ek m)
       ⦃ (r : Option (Array U8 1568#usize × Array U8 32#usize)) =>
           r.map (fun (ct, ss) => (arrayToBytes ss, (arrayToBytes ct).cast rfl))
@@ -274,7 +274,7 @@ theorem from_bytes_to_bytes_1024 (ek_bytes : Array U8 1568#usize) :
     rw [r_post, hek]
     exact pack_unpack_of_KeyCheck _ _ hkc
 
-theorem from_seed_to_seed_1024 (seed : Array U8 64#usize) :
+theorem from_seed_to_seed_1024 (hT : SampleNTTHalts) (seed : Array U8 64#usize) :
     (do let dk ← aeneas_entry.ml_kem_1024.from_seed seed
         aeneas_entry.ml_kem_1024.to_seed dk)
       ⦃ (r : Option (Array U8 64#usize)) => r = some seed ⦄ := by
@@ -288,7 +288,7 @@ theorem from_seed_to_seed_1024 (seed : Array U8 64#usize) :
   rw [auu2_post, dk_post4]
   exact congrArg some (concat_split seed _)
 
-theorem keygen_decap_1024 (seed : Array U8 64#usize) (ct : Array U8 1568#usize) :
+theorem keygen_decap_1024 (hT : SampleNTTHalts) (seed : Array U8 64#usize) (ct : Array U8 1568#usize) :
     (do let dk ← aeneas_entry.ml_kem_1024.from_seed seed
         aeneas_entry.ml_kem_1024.decapsulate dk ct)
       ⦃ (r : Array U8 32#usize) =>
