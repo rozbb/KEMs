@@ -30,9 +30,10 @@ where
     /// # Errors
     /// If the key failed validation during decoding.
     pub fn new(encapsulation_key: &Key<Self>) -> Result<Self, InvalidKey> {
-        EncryptionKey::from_bytes(encapsulation_key)
-            .map(Self::from_encryption_key)
-            .map_err(|_| InvalidKey)
+        match EncryptionKey::from_bytes(encapsulation_key) {
+            Ok(ek_pke) => Ok(Self::from_encryption_key(ek_pke)),
+            Err(_) => Err(InvalidKey),
+        }
     }
 
     /// Encapsulates with the given randomness. This is useful for testing against known vectors.

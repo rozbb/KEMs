@@ -60,13 +60,15 @@ pub(crate) fn sample_ntt(B: &mut impl XofReader) -> NttPolynomial {
 }
 
 pub(crate) fn matrix_sample_ntt<K: ArraySize>(rho: &B32, transpose: bool) -> NttMatrix<K> {
-    NttMatrix::new(Array::from_fn(|i| {
-        NttVector::new(Array::from_fn(|j| {
-            let (i, j) = if transpose { (j, i) } else { (i, j) };
-            let mut xof = XOF(rho, Truncate::truncate(j), Truncate::truncate(i));
-            sample_ntt(&mut xof)
-        }))
-    }))
+    let mut out = NttMatrix::<K>::default();
+    for i in 0..out.0.len() {
+        for j in 0..out.0[i].0.len() {
+            let (i1, j1) = if transpose { (j, i) } else { (i, j) };
+            let mut xof = XOF(rho, Truncate::truncate(j1), Truncate::truncate(i1));
+            out.0[i].0[j] = sample_ntt(&mut xof);
+        }
+    }
+    out
 }
 
 /// Algorithm 8: `SamplePolyCBD_eta(B)`
@@ -78,8 +80,11 @@ pub(crate) fn sample_poly_cbd<Eta>(B: &PrfOutput<Eta>) -> Polynomial
 where
     Eta: CbdSamplingSize,
 {
-    let vals: Polynomial = Encode::<Eta::SampleSize>::decode(B);
-    Polynomial::new(vals.0.iter().map(|val| Eta::ONES[val.0 as usize]).collect())
+    let mut vals: Polynomial = Encode::<Eta::SampleSize>::decode(B);
+    for i in 0..vals.0.len() {
+        vals.0[i] = Eta::ONES[vals.0[i].0 as usize];
+    }
+    vals
 }
 
 pub(crate) fn sample_poly_vec_cbd<Eta, K>(sigma: &B32, start_n: u8) -> Vector<K>
@@ -87,12 +92,14 @@ where
     Eta: CbdSamplingSize,
     K: ArraySize,
 {
-    Vector::new(Array::from_fn(|i| {
-        let i: u8 = Truncate::truncate(i);
-        let N = start_n + i;
+    let mut out = Vector::<K>::default();
+    for i in 0..out.0.len() {
+        let i_u8: u8 = Truncate::truncate(i);
+        let N = start_n + i_u8;
         let prf_output = PRF::<Eta>(sigma, N);
-        sample_poly_cbd::<Eta>(&prf_output)
-    }))
+        out.0[i] = sample_poly_cbd::<Eta>(&prf_output);
+    }
+    out
 }
 
 /// The Number Theoretic Transform (NTT) is a variant of the Discrete Fourier Transform (DFT)
@@ -148,7 +155,11 @@ impl<K: ArraySize> Ntt for Vector<K> {
     type Output = NttVector<K>;
 
     fn ntt(&self) -> NttVector<K> {
-        NttVector::new(self.0.iter().map(Ntt::ntt).collect())
+        let mut out = NttVector::<K>::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self.0[i].ntt();
+        }
+        out
     }
 }
 
@@ -205,7 +216,11 @@ impl<K: ArraySize> NttInverse for NttVector<K> {
     type Output = Vector<K>;
 
     fn ntt_inverse(&self) -> Vector<K> {
-        Vector::new(self.0.iter().map(NttInverse::ntt_inverse).collect())
+        let mut out = Vector::<K>::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self.0[i].ntt_inverse();
+        }
+        out
     }
 }
 

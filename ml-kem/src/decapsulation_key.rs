@@ -94,7 +94,14 @@ where
     #[inline]
     #[must_use]
     pub fn to_seed(&self) -> Option<Seed> {
-        self.d.as_ref().map(|d| d.concat(*self.z))
+        #[allow(
+            clippy::manual_map,
+            reason = "Aeneas can't extract closures passed to `map`"
+        )]
+        match &self.d {
+            Some(d) => Some(d.concat(*self.z)),
+            None => None,
+        }
     }
 
     /// Get the [`EncapsulationKey`] which corresponds to this [`DecapsulationKey`].
