@@ -10,4 +10,7 @@ import MlKem.Properties.Compress
 import MlKem.Properties.Encode
 import MlKem.Properties.Hash
 import MlKem.Properties.Sample
+import MlKem.Properties.SpecLemmas
+import MlKem.Properties.Pke
+import MlKem.Properties.Kem
 import MlKem.Properties.TopLevel
