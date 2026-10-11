@@ -196,13 +196,11 @@ impl<F: Field> Add<&Polynomial<F>> for &Polynomial<F> {
     type Output = Polynomial<F>;
 
     fn add(self, rhs: &Polynomial<F>) -> Polynomial<F> {
-        Polynomial(
-            self.0
-                .iter()
-                .zip(rhs.0.iter())
-                .map(|(&x, &y)| x + y)
-                .collect(),
-        )
+        let mut out = Polynomial::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self.0[i] + rhs.0[i];
+        }
+        out
     }
 }
 
@@ -210,13 +208,11 @@ impl<F: Field> Sub<&Polynomial<F>> for &Polynomial<F> {
     type Output = Polynomial<F>;
 
     fn sub(self, rhs: &Polynomial<F>) -> Polynomial<F> {
-        Polynomial(
-            self.0
-                .iter()
-                .zip(rhs.0.iter())
-                .map(|(&x, &y)| x - y)
-                .collect(),
-        )
+        let mut out = Polynomial::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self.0[i] - rhs.0[i];
+        }
+        out
     }
 }
 
@@ -224,7 +220,11 @@ impl<F: Field> Mul<&Polynomial<F>> for Elem<F> {
     type Output = Polynomial<F>;
 
     fn mul(self, rhs: &Polynomial<F>) -> Polynomial<F> {
-        Polynomial(rhs.0.iter().map(|&x| self * x).collect())
+        let mut out = Polynomial::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self * rhs.0[i];
+        }
+        out
     }
 }
 
@@ -282,13 +282,11 @@ impl<F: Field, K: ArraySize> Add<&Vector<F, K>> for &Vector<F, K> {
     type Output = Vector<F, K>;
 
     fn add(self, rhs: &Vector<F, K>) -> Vector<F, K> {
-        Vector(
-            self.0
-                .iter()
-                .zip(rhs.0.iter())
-                .map(|(x, y)| x + y)
-                .collect(),
-        )
+        let mut out = Vector::default();
+        for i in 0..out.0.len() {
+            out.0[i] = &self.0[i] + &rhs.0[i];
+        }
+        out
     }
 }
 
@@ -358,13 +356,11 @@ impl<F: Field> Add<&NttPolynomial<F>> for &NttPolynomial<F> {
     type Output = NttPolynomial<F>;
 
     fn add(self, rhs: &NttPolynomial<F>) -> NttPolynomial<F> {
-        NttPolynomial(
-            self.0
-                .iter()
-                .zip(rhs.0.iter())
-                .map(|(&x, &y)| x + y)
-                .collect(),
-        )
+        let mut out = NttPolynomial::default();
+        for i in 0..out.0.len() {
+            out.0[i] = self.0[i] + rhs.0[i];
+        }
+        out
     }
 }
 
@@ -492,13 +488,11 @@ impl<F: Field, K: ArraySize> Add<&NttVector<F, K>> for &NttVector<F, K> {
     type Output = NttVector<F, K>;
 
     fn add(self, rhs: &NttVector<F, K>) -> NttVector<F, K> {
-        NttVector(
-            self.0
-                .iter()
-                .zip(rhs.0.iter())
-                .map(|(x, y)| x + y)
-                .collect(),
-        )
+        let mut out = NttVector::default();
+        for i in 0..out.0.len() {
+            out.0[i] = &self.0[i] + &rhs.0[i];
+        }
+        out
     }
 }
 
@@ -534,11 +528,11 @@ where
     type Output = NttPolynomial<F>;
 
     fn mul(self, rhs: &NttVector<F, K>) -> NttPolynomial<F> {
-        self.0
-            .iter()
-            .zip(rhs.0.iter())
-            .map(|(x, y)| x * y)
-            .fold(NttPolynomial::default(), |x, y| &x + &y)
+        let mut out = NttPolynomial::default();
+        for i in 0..self.0.len() {
+            out = &out + &(&self.0[i] * &rhs.0[i]);
+        }
+        out
     }
 }
 
@@ -566,7 +560,11 @@ where
     type Output = NttVector<F, K>;
 
     fn mul(self, rhs: &NttVector<F, L>) -> NttVector<F, K> {
-        NttVector(self.0.iter().map(|x| x * rhs).collect())
+        let mut out = NttVector::default();
+        for i in 0..out.0.len() {
+            out.0[i] = &self.0[i] * rhs;
+        }
+        out
     }
 }
 
