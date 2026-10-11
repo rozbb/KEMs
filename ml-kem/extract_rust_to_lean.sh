@@ -59,12 +59,15 @@ $CHARON cargo --preset=aeneas --no-dedup-serialized-ast \
 python3 lean/scripts/fix_llbc.py "${WORK_DIR}/mono.llbc" "${WORK_DIR}/generic.llbc" \
     "${WORK_DIR}/ExtractedRust.llbc"
 
-# Extract to lean/ExtractedRust/{Types,Funs}.lean. The external definitions they use are in the
-# hand-written lean/ExtractedRust/{Types,Funs}External.lean; Aeneas regenerates the templates for
-# these, so that changes to the expected signatures show up in the diff.
-$AENEAS "${WORK_DIR}/ExtractedRust.llbc" -backend lean -loops-to-rec -split-files \
+# Extract to lean/ExtractedRust/{Types,Funs}.lean. The external types they use are modelled in the
+# hand-written lean/ExtractedRust/TypesExternal.lean, and the external functions in
+# lean/ExtractedRust/FunsExternal.lean, which we generate from Aeneas's template. Both templates are
+# kept, so that changes to the expected signatures show up in the diff.
+$AENEAS "${WORK_DIR}/ExtractedRust.llbc" -backend lean -loops-to-rec -split-files -use-lean-modules false \
     -namespace RustMlKem -dest "${WORK_DIR}/out"
 mkdir -p lean/ExtractedRust
 for f in Types Funs TypesExternal_Template FunsExternal_Template; do
     mv "${WORK_DIR}/out/${f}.lean" "lean/ExtractedRust/${f}.lean"
 done
+python3 lean/scripts/gen_funs_external.py lean/ExtractedRust/FunsExternal_Template.lean \
+    lean/ExtractedRust/Types.lean lean/ExtractedRust/FunsExternal.lean
