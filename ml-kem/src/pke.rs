@@ -199,7 +199,7 @@ where
         // #1 is performed by the `EncodedEncryptionKey` type, and the following check vicariously
         // performs #2 by encoding the integer-mod-q array using our implementation of ByteEncode₁₂
         // and comparing the resulting serialization to see if it round-trips.
-        if &ret.to_bytes() == enc {
+        if ret.to_bytes() == *enc {
             Ok(ret)
         } else {
             Err(InvalidKey)
